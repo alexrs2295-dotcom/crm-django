@@ -36,9 +36,10 @@ Abrir http://127.0.0.1:8000/. Tests: `python manage.py test`.
 |---|---|---|
 | `DJANGO_DEBUG` | `1` | `0` para producción. |
 | `DJANGO_SECRET_KEY` | clave de desarrollo | Obligatoria si `DJANGO_DEBUG=0`. |
-| `DJANGO_ALLOWED_HOSTS` | vacío | Hosts permitidos, separados por comas. |
-| `DJANGO_CSRF_TRUSTED_ORIGINS` | vacío | Orígenes, p. ej. `http://1.2.3.4`. |
+| `DJANGO_ALLOWED_HOSTS` | vacío | Hosts permitidos, separados por comas (en Render: `.onrender.com`). |
+| `DJANGO_CSRF_TRUSTED_ORIGINS` | vacío | Orígenes separados por comas, p. ej. `https://crm-django.onrender.com`. |
 | `DJANGO_HTTPS` | `0` | `1` solo si se sirve por HTTPS (activa cookies Secure). |
+| `DEMO_PASSWORD` | sin definir | Contraseña de los usuarios demo en Render (`admin`, `marta`, `jorge`). |
 
 Con `DJANGO_DEBUG=0` los estáticos se sirven con WhiteNoise desde `staticfiles/` (`collectstatic`).
 
@@ -49,28 +50,8 @@ Con `DJANGO_DEBUG=0` los estáticos se sirven con WhiteNoise desde `staticfiles/
 3. Escribe el valor de `DEMO_PASSWORD` (la contraseña de los usuarios demo) cuando lo pida.
 4. **Apply**. Al terminar, la app queda en una URL tipo `https://crm-django.onrender.com` (HTTPS automático).
 
+`render.yaml` ya define el resto de variables (`DJANGO_DEBUG=0`, `DJANGO_SECRET_KEY` generada, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `DJANGO_HTTPS=1`). En cada arranque ejecuta las migraciones y `seed_demo`; para actualizar basta con hacer `git push` a `main` (Render redespliega solo).
+
 Usuarios demo: `admin`, `marta` y `jorge`, todos con la contraseña `DEMO_PASSWORD`.
 
 Avisos del plan gratuito: el servicio se duerme tras 15 min sin tráfico y tarda ~1 min en despertar. El disco es efímero: la base SQLite se recrea (migraciones + datos demo) en cada arranque, así que los cambios se pierden.
-
-## Despliegue en un droplet Ubuntu (alternativa: nginx + gunicorn, sin dominio ni HTTPS)
-
-Como root:
-
-```
-apt update && apt install -y python3-venv nginx git
-git clone <URL-del-repositorio> /srv/crm-django
-cd /srv/crm-django
-cp deploy/.env.example .env
-python3 -c "import secrets; print(secrets.token_urlsafe(50))"   # úsala como DJANGO_SECRET_KEY
-nano .env                        # SECRET_KEY, y la IP del droplet en ALLOWED_HOSTS y CSRF_TRUSTED_ORIGINS
-cp deploy/crm.service /etc/systemd/system/crm.service
-systemctl daemon-reload && systemctl enable crm
-bash deploy/deploy.sh            # instala dependencias, migra, collectstatic, seed y arranca el servicio
-ln -sf /srv/crm-django/deploy/crm.nginx /etc/nginx/sites-enabled/crm
-rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
-ufw allow 80
-```
-
-La app queda en `http://IP/`. Para actualizar: `git pull && bash deploy/deploy.sh`. Las credenciales demo se generan en `/srv/crm-django/credenciales-dev.txt`.
