@@ -4,7 +4,7 @@ Gestor de clientes para equipos comerciales, hecho con Django 5.2 y SQLite.
 
 ## Acceso a la demo
 
-Servicio desplegado en Render: `https://crm-django.onrender.com` (sustituir por la URL pública real).
+**URL de la demo: [https://crm-django-a1et.onrender.com](https://crm-django-a1et.onrender.com)**
 
 | Usuario | Contraseña | Qué ve |
 |---|---|---|
@@ -49,7 +49,7 @@ Abrir http://127.0.0.1:8000/. Tests: `python manage.py test`.
 | `DJANGO_DEBUG` | `1` | `0` para producción. |
 | `DJANGO_SECRET_KEY` | clave de desarrollo | Obligatoria si `DJANGO_DEBUG=0`. |
 | `DJANGO_ALLOWED_HOSTS` | vacío | Hosts permitidos, separados por comas (en Render: `.onrender.com`). |
-| `DJANGO_CSRF_TRUSTED_ORIGINS` | vacío | Orígenes separados por comas, p. ej. `https://crm-django.onrender.com`. |
+| `DJANGO_CSRF_TRUSTED_ORIGINS` | vacío | Orígenes separados por comas, p. ej. `https://crm-django-a1et.onrender.com`. |
 | `DJANGO_HTTPS` | `0` | `1` solo si se sirve por HTTPS (activa cookies Secure). |
 | `DEMO_PASSWORD` | sin definir | Contraseña de los usuarios demo en Render (`admin`, `marta`, `jorge`). |
 
@@ -60,7 +60,7 @@ Con `DJANGO_DEBUG=0` los estáticos se sirven con WhiteNoise desde `staticfiles/
 1. Crea una cuenta en [render.com](https://render.com) y conecta tu cuenta de GitHub.
 2. **New → Blueprint** y elige este repositorio (Render lee `render.yaml`).
 3. Escribe el valor de `DEMO_PASSWORD` (la contraseña de los usuarios demo) cuando lo pida.
-4. **Apply**. Al terminar, la app queda en una URL tipo `https://crm-django.onrender.com` (HTTPS automático).
+4. **Apply**. Al terminar, la app queda en la URL `https://crm-django-a1et.onrender.com` (HTTPS automático).
 
 `render.yaml` ya define el resto de variables (`DJANGO_DEBUG=0`, `DJANGO_SECRET_KEY` generada, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `DJANGO_HTTPS=1`). En cada arranque ejecuta las migraciones y `seed_demo`; para actualizar basta con hacer `git push` a `main` (Render redespliega solo).
 
