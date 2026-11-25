@@ -1,3 +1,4 @@
+import os
 import random
 import secrets
 from datetime import timedelta
@@ -86,18 +87,25 @@ class Command(BaseCommand):
             Company.objects.all().delete()
 
         User = get_user_model()
+        demo_pwd = os.environ.get('DEMO_PASSWORD')  # despliegue (Render): contraseña común, sin credenciales-dev.txt
+        if demo_pwd:
+            admin, created = User.objects.get_or_create(
+                username='admin', defaults={'is_staff': True, 'is_superuser': True})
+            if created:
+                admin.set_password(demo_pwd)
+                admin.save()
         comerciales, nuevas = [], []
         for username in ('marta', 'jorge'):
             user, created = User.objects.get_or_create(username=username, defaults={'is_staff': False})
             if created:
-                pwd = secrets.token_urlsafe(12)
+                pwd = demo_pwd or secrets.token_urlsafe(12)
                 user.set_password(pwd)
                 user.save()
                 nuevas.append(f'usuario: {username} / password: {pwd}\n')
             comerciales.append(user)
-        if nuevas:  # la contraseña solo existe al crearlos; no se reescribe en ejecuciones posteriores
+        if nuevas and not demo_pwd:  # la contraseña solo existe al crearlos; no se reescribe en ejecuciones posteriores
             with open(Path(settings.BASE_DIR) / 'credenciales-dev.txt', 'a', encoding='utf-8') as f:
-                f.write('\n' + ''.join(nuevas))
+                f.write('\n' +''.join(nuevas))
 
         empresas = [Company.objects.get_or_create(nombre=n, defaults={'sector': s, 'web': w})[0]
                     for n, s, w in EMPRESAS]

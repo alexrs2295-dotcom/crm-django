@@ -42,7 +42,18 @@ Abrir http://127.0.0.1:8000/. Tests: `python manage.py test`.
 
 Con `DJANGO_DEBUG=0` los estáticos se sirven con WhiteNoise desde `staticfiles/` (`collectstatic`).
 
-## Despliegue en un droplet Ubuntu (nginx + gunicorn, sin dominio ni HTTPS)
+## Despliegue en Render
+
+1. Crea una cuenta en [render.com](https://render.com) y conecta tu cuenta de GitHub.
+2. **New → Blueprint** y elige este repositorio (Render lee `render.yaml`).
+3. Escribe el valor de `DEMO_PASSWORD` (la contraseña de los usuarios demo) cuando lo pida.
+4. **Apply**. Al terminar, la app queda en una URL tipo `https://crm-django.onrender.com` (HTTPS automático).
+
+Usuarios demo: `admin`, `marta` y `jorge`, todos con la contraseña `DEMO_PASSWORD`.
+
+Avisos del plan gratuito: el servicio se duerme tras 15 min sin tráfico y tarda ~1 min en despertar. El disco es efímero: la base SQLite se recrea (migraciones + datos demo) en cada arranque, así que los cambios se pierden.
+
+## Despliegue en un droplet Ubuntu (alternativa: nginx + gunicorn, sin dominio ni HTTPS)
 
 Como root:
 

@@ -297,3 +297,20 @@ class PermisosTests(TestCase):
         self.client.login(username='admin', password='x')
         self.assertEqual(self.client.get(reverse('company_update', args=[self.mixta.pk])).status_code, 200)
         self.assertEqual(self.client.post(reverse('company_delete', args=[self.mixta.pk])).status_code, 302)
+
+
+class SeedDemoPasswordTests(TestCase):
+    def test_demo_password_para_usuarios_y_sin_fichero_de_credenciales(self):
+        import tempfile
+        from pathlib import Path
+        from unittest import mock
+        from django.core.management import call_command
+        with tempfile.TemporaryDirectory() as tmp,                 mock.patch.dict('os.environ', {'DEMO_PASSWORD': 'demo-test-123'}),                 self.settings(BASE_DIR=tmp):
+            call_command('seed_demo', stdout=mock.MagicMock())
+            call_command('seed_demo', stdout=mock.MagicMock())  # idempotente
+            self.assertFalse((Path(tmp) / 'credenciales-dev.txt').exists())
+        for u in ('admin', 'marta', 'jorge'):
+            self.assertTrue(self.client.login(username=u, password='demo-test-123'), u)
+        self.assertTrue(User.objects.get(username='admin').is_superuser)
+        self.assertEqual(User.objects.count(), 3)
+        self.assertEqual(Client.objects.count(), 25)

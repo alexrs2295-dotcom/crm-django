@@ -37,6 +37,8 @@ ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '').s
 if not DEBUG:
     STATIC_ROOT = BASE_DIR / 'staticfiles'
     SESSION_COOKIE_SECURE = CSRF_COOKIE_SECURE = os.environ.get('DJANGO_HTTPS', '0').lower() in ('1', 'true', 'yes')
+    if SESSION_COOKIE_SECURE:  # TLS termina en el proxy (Render): Django debe ver la petición como segura
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     STORAGES = {
         'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
         'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
