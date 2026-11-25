@@ -2,6 +2,18 @@
 
 Gestor de clientes para equipos comerciales, hecho con Django 5.2 y SQLite.
 
+## Acceso a la demo
+
+Servicio desplegado en Render: `https://crm-django.onrender.com` (sustituir por la URL pública real).
+
+| Usuario | Contraseña | Qué ve |
+|---|---|---|
+| `admin` | `demo-crm-django` | Todos los clientes. |
+| `marta` | `demo-crm-django` | Solo sus clientes. |
+| `jorge` | `demo-crm-django` | Solo sus clientes. |
+
+Son credenciales de demostración y los datos son ficticios: se reinician cada vez que el servicio se reinicia. El plan gratuito de Render duerme el servicio tras 15 minutos sin visitas, así que la primera carga puede tardar ~1 minuto.
+
 ## Funcionalidades
 
 - CRUD de clientes, empresas e interacciones (llamadas, emails, reuniones, otros).
@@ -28,7 +40,7 @@ Abrir http://127.0.0.1:8000/. Tests: `python manage.py test`.
 
 ## Usuarios demo
 
-`seed_demo` crea los comerciales `marta` y `jorge` (más 8 empresas, 25 clientes y 60 interacciones). No hay contraseña fija: se genera una aleatoria al crear cada usuario y se guarda en `credenciales-dev.txt` (en la raíz del proyecto, ignorado por git). El comando es idempotente; `--reset` recrea empresas, clientes e interacciones.
+`seed_demo` crea los comerciales `marta` y `jorge` (más 8 empresas, 25 clientes y 60 interacciones). En local, sin `DEMO_PASSWORD`, no hay contraseña fija: se genera una aleatoria al crear cada usuario y se guarda en `credenciales-dev.txt` (en la raíz del proyecto, ignorado por git). Con `DEMO_PASSWORD` definida (como en Render, ver "Acceso a la demo") los usuarios demo usan esa contraseña y no se escribe `credenciales-dev.txt`. El comando es idempotente; `--reset` recrea empresas, clientes e interacciones.
 
 ## Variables de entorno
 
