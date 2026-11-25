@@ -1,0 +1,17 @@
+{% extends base_template %}
+{% block modal_title %}Eliminar{% endblock %}
+{% block content %}
+<div class="form-narrow">
+  {% if base_template == 'base.html' %}<div class="page-head"><h1>Eliminar</h1></div>{% endif %}
+  <div class="card card-body">
+    <form method="post">
+      {% csrf_token %}
+      <p>¿Seguro que quieres eliminar «{{ object }}»? Esta acción no se puede deshacer.</p>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        {% if base_template == 'base.html' %}<a href="javascript:history.back()" class="btn btn-outline-secondary">Cancelar</a>{% else %}<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>{% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>Cartera de <b>clientes</b> <span class="count-badge" id="count-badge" aria-hidden="true">{{ paginator.count }}</span></h1>
+  <div class="actions">
+    <a data-export href="{% url 'client_export' %}{% if qs_todo %}?{{ qs_todo }}{% endif %}" class="btn btn-outline-secondary">Exportar CSV</a>
+    <a data-modal href="{% url 'client_create' %}" class="btn btn-primary">Nuevo cliente</a>
+  </div>
+</div>
+<form method="get" class="filters" id="filtros" role="search">
+  <div class="search-row">
+    <input type="search" id="buscar" name="q" value="{{ q }}" class="form-control" placeholder="Buscar por nombre, email o empresa" aria-label="Buscar clientes" autocomplete="off">
+    <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+  </div>
+  <div class="filter-row">
+    <label class="filter-field"><span>Empresa</span>
+      <select name="empresa" class="form-select" data-auto>
+        <option value="">Todas</option>
+        {% for e in empresas %}<option value="{{ e.pk }}"{% if e.pk == empresa_id %} selected{% endif %}>{{ e }}</option>{% endfor %}
+      </select>
+    </label>
+    {% if comerciales is not None %}
+    <label class="filter-field"><span>Comercial</span>
+      <select name="comercial" class="form-select" data-auto>
+        <option value="">Todos</option>
+        {% for u in comerciales %}<option value="{{ u.pk }}"{% if u.pk == comercial_id %} selected{% endif %}>{{ u.get_username|capfirst }}</option>{% endfor %}
+      </select>
+    </label>
+    {% endif %}
+    <label class="filter-field filter-orden"><span>Ordenar por</span>
+      <select name="orden" class="form-select" data-auto>
+        {% for val, label in ordenes %}<option value="{{ val }}"{% if val == orden or not val and orden == 'nombre' %} selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+  {% for k, v in hidden.items %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+</form>
+{% if chips %}
+<ul class="chips" aria-label="Filtros activos">
+  {% for label, cqs in chips %}
+  <li class="chip">{{ label }}<a href="?{{ cqs }}" class="chip-x" aria-label="Quitar filtro: {{ label }}"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg></a></li>
+  {% endfor %}
+  <li><a href="?{{ qs_limpiar }}" class="chip-clear">Limpiar filtros</a></li>
+</ul>
+{% endif %}
+{% with n=paginator.count %}
+<p id="contador" class="list-count" aria-live="polite" aria-atomic="true">{% if q %}{{ n }} resultado{{ n|pluralize }}{% else %}{{ n }} cliente{{ n|pluralize }}{% endif %}</p>
+<div id="lista" data-total="{{ n }}">
+<div class="card"><div class="table-responsive">
+<table class="table table-hover align-middle table-cards">
+  <thead><tr>
+    <th aria-sort="{{ sort.nombre.aria }}"><a class="sort-link" href="{{ sort.nombre.href }}">Nombre{% include 'crm/_sort_icon.html' with d=sort.nombre.dir %}</a></th>
+    <th>Email</th>
+    <th aria-sort="{{ sort.empresa.aria }}"><a class="sort-link" href="{{ sort.empresa.href }}">Empresa{% include 'crm/_sort_icon.html' with d=sort.empresa.dir %}</a></th>
+    <th>Comercial</th>
+    <th aria-sort="{{ sort.alta.aria }}"><a class="sort-link" href="{{ sort.alta.href }}">Alta{% include 'crm/_sort_icon.html' with d=sort.alta.dir %}</a></th>
+    <th></th>
+  </tr></thead>
+  <tbody>
+  {% for c in object_list %}
+    <tr data-undo-row>
+      <td data-label="Nombre" data-hl><a href="{% url 'client_detail' c.pk %}">{{ c }}</a></td>
+      <td data-label="Email" data-hl>{{ c.email }}</td>
+      <td data-label="Empresa" data-hl>{{ c.company|default:"-" }}</td>
+      <td data-label="Comercial">{{ c.comercial|capfirst }}</td>
+      <td data-label="Alta">{{ c.creado|date:"d/m/Y" }}</td>
+      <td class="row-actions">
+        <a data-modal href="{% url 'client_update' c.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+        <a data-undo="Cliente eliminado" href="{% url 'client_delete' c.pk %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr class="empty-row"><td colspan="6" class="empty text-muted">{% if q or chips %}Ningún cliente coincide con la búsqueda.{% else %}No hay clientes.{% endif %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div></div>
+{% if is_paginated %}
+<nav class="pager" aria-label="Paginación">
+  <span class="pager-status">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+  <div class="pager-links">
+    {% if page_obj.has_previous %}<a class="btn btn-outline-secondary" href="?{% if qs_todo %}{{ qs_todo }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>{% endif %}
+    {% if page_obj.has_next %}<a class="btn btn-outline-secondary" href="?{% if qs_todo %}{{ qs_todo }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Siguiente</a>{% endif %}
+  </div>
+</nav>
+{% endif %}
+</div>
+{% endwith %}
+{% endblock %}

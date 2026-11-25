@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Entrar - CRM Básico{% endblock %}
+{% block content %}
+<div class="login-box card card-body">
+  <h1 class="h4 mb-3">Iniciar <b>sesión</b></h1>
+  <form method="post" class="form-crm">
+    {% csrf_token %}
+    {{ form.as_div }}
+    <button type="submit" class="btn btn-primary w-100">Entrar</button>
+  </form>
+</div>
+{% endblock %}

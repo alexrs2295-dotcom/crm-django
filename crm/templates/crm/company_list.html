@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-head">
+  <h1>Empresas <span class="count-badge" aria-hidden="true">{{ object_list|length }}</span></h1>
+  <div class="actions"><a data-modal href="{% url 'company_create' %}" class="btn btn-primary">Nueva empresa</a></div>
+</div>
+<div class="card"><div class="table-responsive">
+<table class="table table-hover align-middle table-cards">
+  <thead><tr><th>Nombre</th><th>Sector</th><th>Web</th><th></th></tr></thead>
+  <tbody>
+  {% for c in object_list %}
+    <tr data-undo-row>
+      <td data-label="Nombre" class="cell-name">{{ c.nombre }}</td>
+      <td data-label="Sector">{{ c.sector|default:"-" }}</td>
+      <td data-label="Web">{% if c.web %}<a href="{{ c.web }}" target="_blank" rel="noopener">{{ c.web }}</a>{% else %}-{% endif %}</td>
+      <td class="row-actions">
+        <a data-modal href="{% url 'company_update' c.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+        <a data-undo="Empresa eliminada"{% if c.n_clients %} data-undo-note="Los clientes quedan sin empresa."{% endif %} href="{% url 'company_delete' c.pk %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr class="empty-row"><td colspan="4" class="empty text-muted">No hay empresas.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div></div>
+{% endblock %}

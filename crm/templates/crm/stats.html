@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Estadísticas - CRM Básico{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Panel de <b>estadísticas</b></h1></div>
+<div class="kpi-grid">
+  <a class="card kpi-link" href="{% url 'client_list' %}"><div class="card-body"><div class="kpi-label">Clientes</div><div class="kpi-value">{{ total_clientes }}</div></div></a>
+  <a class="card kpi-link" href="{% url 'company_list' %}"><div class="card-body"><div class="kpi-label">Empresas con clientes</div><div class="kpi-value">{{ total_empresas }}</div></div></a>
+  <div class="card"><div class="card-body"><div class="kpi-label">Interacciones</div><div class="kpi-value">{{ total_interacciones }}</div></div></div>
+  <div class="card"><div class="card-body"><div class="kpi-label">Interacciones (30 días)</div><div class="kpi-value">{{ ultimos_30 }}</div></div></div>
+</div>
+<div class="stats-grid">
+  {% if charts.comercial is not None %}
+  <div class="card"><div class="card-body"><h2 class="h6">Clientes por comercial</h2><div class="chart" data-key="comercial" data-param="comercial" data-horizontal="1"></div></div></div>
+  {% endif %}
+  <div class="card"><div class="card-body"><h2 class="h6">Interacciones por tipo</h2><div class="chart" data-key="tipo" data-param="tipo"></div></div></div>
+  <div class="card"><div class="card-body"><h2 class="h6">Top 5 empresas por clientes</h2><div class="chart" data-key="empresas" data-param="empresa" data-horizontal="1"></div></div></div>
+  <div class="card"><div class="card-body"><h2 class="h6">Interacciones por mes (últimos 6)</h2><div class="chart" data-key="mes" data-param="mes"></div></div></div>
+</div>
+{{ charts|json_script:"charts-data" }}
+<div hidden id="list-url" data-url="{% url 'client_list' %}"></div>
+<script src="{% static 'crm/vendor/echarts.min.js' %}"></script>
+<script>
+(function () {
+  const data = JSON.parse(document.getElementById('charts-data').textContent);
+  const brand = '#1C393F', ink = '#14292E', ecru = '#B8A85D', ecruDeep = '#8C7D38', paper = '#FDF6E3';
+  const font = 'Poppins, system-ui, sans-serif';
+  const instances = [];
+  const listUrl = document.getElementById('list-url').dataset.url;
+  document.querySelectorAll('.chart').forEach(function (el) {
+    let rows = data[el.dataset.key] || [];
+    if (!rows.length) {
+      el.className = 'chart-empty';
+      el.textContent = 'Sin datos';
+      return;
+    }
+    const horizontal = !!el.dataset.horizontal;
+    if (horizontal) rows = rows.slice().reverse();
+    const labels = rows.map(function (r) { return r[0]; });
+    const values = rows.map(function (r) { return { value: r[1], key: r[2] }; });
+    const lbl = { color: ink, fontFamily: font, fontWeight: 500, fontSize: 12 };
+    const cat = { type: 'category', data: labels, axisLine: { lineStyle: { color: ecruDeep, width: 1.5 } }, axisTick: { show: false }, axisLabel: lbl };
+    const val = { type: 'value', minInterval: 1, axisLabel: lbl, axisLine: { show: false }, splitLine: { lineStyle: { color: ecruDeep, opacity: .25, width: 1 } } };
+    const chart = echarts.init(el);
+    chart.setOption({
+      textStyle: { fontFamily: font },
+      color: [brand],
+      grid: { left: 8, right: 32, top: 24, bottom: 8, containLabel: true },
+      tooltip: {
+        trigger: 'axis', axisPointer: { type: 'shadow', shadowStyle: { color: ecru, opacity: .22 } }, backgroundColor: paper, borderColor: brand, borderWidth: 1.5, padding: [8, 12], textStyle: { color: ink, fontFamily: font },
+        extraCssText: 'border-radius:12px;box-shadow:3px 3px 0 ' + ecru + ';',
+        formatter: function (ps) {
+          const p = ps[0];
+          return echarts.format.encodeHTML(String(p.name)) + ': <b>' + p.value + '</b><br><span style="color:#3E555A">Clic para ver los clientes</span>';
+        }
+      },
+      xAxis: horizontal ? val : cat,
+      yAxis: horizontal ? cat : val,
+      series: [{
+        type: 'bar', data: values, barMaxWidth: 34, cursor: 'pointer',
+        itemStyle: { color: brand, borderRadius: horizontal ? [0, 8, 8, 0] : [8, 8, 0, 0], shadowColor: ecru, shadowBlur: 0, shadowOffsetX: 3, shadowOffsetY: horizontal ? 3 : 0 },
+        emphasis: { itemStyle: { color: ecruDeep } },
+        label: { show: true, position: horizontal ? 'right' : 'top', color: ink, fontFamily: font, fontWeight: 600, fontSize: 13 }
+      }]
+    });
+    chart.on('click', function (p) {
+      if (p.data && p.data.key !== undefined && p.data.key !== null) {
+        location.href = listUrl + '?' + el.dataset.param + '=' + encodeURIComponent(p.data.key);
+      }
+    });
+    instances.push(chart);
+  });
+  window.addEventListener('resize', function () { instances.forEach(function (c) { c.resize(); }); });
+})();
+</script>
+{% endblock %}

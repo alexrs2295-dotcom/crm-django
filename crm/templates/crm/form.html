@@ -1,0 +1,17 @@
+{% extends base_template %}
+{% block modal_title %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="form-narrow">
+  {% if base_template == 'base.html' %}<div class="page-head"><h1>{{ titulo }}</h1></div>{% endif %}
+  <div class="card card-body">
+    <form method="post" class="form-crm">
+      {% csrf_token %}
+      {{ form.as_div }}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        {% if base_template == 'base.html' %}<a href="javascript:history.back()" class="btn btn-outline-secondary">Cancelar</a>{% else %}<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>{% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
